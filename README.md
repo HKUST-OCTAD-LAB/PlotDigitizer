@@ -1,6 +1,6 @@
 # Heatmap Digitizer
 
-**Heatmap Digitizer** is a Swift-based macOS app designed to digitize heatmaps efficiently using KDTree for spatial queries. 
+**Heatmap Digitizer** is a Swift-based macOS app designed to digitize heatmaps/density maps efficiently using KDTree for spatial queries. 
 The app allows users to extract data points from an image of a heatmap and save the results as a CSV file for further analysis.
 
 ---
@@ -69,5 +69,4 @@ The output CSV file will contain the **Value Matrix**: The corresponding data ma
 ## **Support**
 
 For issues, suggestions, or feedback, please contact shihuamingzhi'at'gmail.com. 
-
-Enjoy digitizing your heatmaps efficiently! 🚀
+You can create a pull request if you would like to implement new features.
