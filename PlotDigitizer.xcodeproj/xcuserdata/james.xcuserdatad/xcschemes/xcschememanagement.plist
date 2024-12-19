@@ -4,10 +4,28 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
-		<key>PlotDigitizer.xcscheme_^#shared#^_</key>
+		<key>PlotDigitizer 1.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>0</integer>
+			<integer>1</integer>
+		</dict>
+	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>1AFCE9E82D0981FB006F1BE8</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>1AFCE9F92D0981FC006F1BE8</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>1AFCEA032D0981FC006F1BE8</key>
+		<dict>
+			<key>primary</key>
+			<true/>
 		</dict>
 	</dict>
 </dict>

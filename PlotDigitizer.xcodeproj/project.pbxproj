@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		1A0F526C2D1467C500E006AC /* KDTree in Frameworks */ = {isa = PBXBuildFile; productRef = 1A0F526B2D1467C500E006AC /* KDTree */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		1AFCE9FB2D0981FC006F1BE8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A0F526C2D1467C500E006AC /* KDTree in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +117,7 @@
 			);
 			name = PlotDigitizer;
 			packageProductDependencies = (
+				1A0F526B2D1467C500E006AC /* KDTree */,
 			);
 			productName = PlotDigitizer;
 			productReference = 1AFCE9E92D0981FB006F1BE8 /* PlotDigitizer.app */;
@@ -195,6 +201,9 @@
 			);
 			mainGroup = 1AFCE9E02D0981FB006F1BE8;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				1A0F526A2D1467C500E006AC /* XCRemoteSwiftPackageReference "KDTree" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 1AFCE9EA2D0981FB006F1BE8 /* Products */;
 			projectDirPath = "";
@@ -549,6 +558,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		1A0F526A2D1467C500E006AC /* XCRemoteSwiftPackageReference "KDTree" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Bersaelor/KDTree";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.4.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		1A0F526B2D1467C500E006AC /* KDTree */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1A0F526A2D1467C500E006AC /* XCRemoteSwiftPackageReference "KDTree" */;
+			productName = KDTree;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 1AFCE9E12D0981FB006F1BE8 /* Project object */;
 }
