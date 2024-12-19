@@ -11,21 +11,21 @@ struct Point3D: KDTreePoint {
     static var dimensions: Int = 3
     
     func kdDimension(_ dimension: Int) -> Double {
-        <#code#>
+        if dimension == 0 {
+            return self.x
+        } else if dimension == 1 {
+            return self.y
+        } else {
+            return self.z
+        }
+    }
+    
+    func squaredDistance(to otherPoint: Point3D) -> Double {
+        return pow(x - otherPoint.x, 2) + pow(y - otherPoint.y, 2) + pow(z - otherPoint.z, 2)
     }
     
     let x: Double
     let y: Double
     let z: Double
-    let value: Double // The associated value with the point
-
-    // KDTreePoint protocol requires a `dimensions` property to describe the point's coordinates
-    static var dimensions: [Double] {
-        return [x, y, z]
-    }
-    
-    // Euclidean distance calculation between two points
-    func squaredDistance(to otherPoint: Point3D) -> Double {
-        return pow(x - otherPoint.x, 2) + pow(y - otherPoint.y, 2) + pow(z - otherPoint.z, 2)
-    }
+    let value: Double
 }

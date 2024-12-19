@@ -66,8 +66,16 @@ func cropImage(bitmap: NSBitmapImageRep, corners: [CGPoint]) -> NSBitmapImageRep
 }
 
 struct ColorMap {
-    let values: [Double]
-    let colors: [NSColor]
+    let colorValuePairs: [Point3D]
+}
+
+
+func Color2Point3D(_ color: NSColor, _ value: Double) -> Point3D {
+    return Point3D(x: color.redComponent, y: color.greenComponent, z: color.blueComponent, value: value)
+}
+
+func Color2PlainPoint3D(_ color: NSColor) -> Point3D {
+    return Point3D(x: color.redComponent, y: color.greenComponent, z: color.blueComponent, value: 0)
 }
 
 func interpolateColorbar(bitmap: NSBitmapImageRep, twoPoints: [CGPoint], twoValues: [Double]) -> ColorMap {
@@ -76,94 +84,103 @@ func interpolateColorbar(bitmap: NSBitmapImageRep, twoPoints: [CGPoint], twoValu
     let y1: Int = Int(twoPoints[1].y)
     
     guard 0 <= y1 && y1 < y0 && y0 < bitmap.pixelsHigh else {
-        return ColorMap(values: [0,1], colors: [.black, .black])
+        return ColorMap(
+            colorValuePairs: [Color2Point3D(.black, 0), Color2Point3D(.black, 0)]
+        )
     }
 
     print("==> Subroutine: extract colorbar.")
     let k: Double = (twoValues[0] - twoValues[1]) / Double(y0 - y1)
-    let values: [Double] = (y1 ... y0).map {
-        return twoValues[1] + k * Double($0 - y1)
-    }
-    let colors: [NSColor] = (y1 ... y0).map {
-        let color = bitmap.colorAt(x: x, y: $0)!
-//        print("Red: \(color.redComponent), Green: \(color.greenComponent), Blue: \(color.blueComponent)")
-        return color
-    }
-    print("\(values.count) data points are used.")
-    
-    return ColorMap(values: values, colors: colors)
-}
-
-func interpolateColorbar2(bitmap: NSBitmapImageRep, twoPoints: [CGPoint], twoValues: [Double]) -> ColorMap {
-    let x = Int((twoPoints[0].x + twoPoints[1].x) / 2)
-    let y0: Int = Int(twoPoints[0].y)
-    let y1: Int = Int(twoPoints[1].y)
-    
-    guard 0 <= y1 && y1 < y0 && y0 < bitmap.pixelsHigh else {
-        return ColorMap(values: [0,1], colors: [.black, .black])
-    }
-
-    print("==> Subroutine: extract colorbar.")
-    let k: Double = (twoValues[0] - twoValues[1]) / Double(y0 - y1)
-    let values: [Double] = (y1 ... y0).map {
-        return twoValues[1] + k * Double($0 - y1)
-    }
-    let colors: [NSColor] = (y1 ... y0).map {
-        let color = bitmap.colorAt(x: x, y: $0)!
-//        print("Red: \(color.redComponent), Green: \(color.greenComponent), Blue: \(color.blueComponent)")
-        return color
-    }
-    print("\(values.count) data points are used.")
-    
-    return ColorMap(values: values, colors: colors)
-}
-
-
-func colorDistance(_ color1: NSColor, _ color2: NSColor) -> Double {
-    let redDiff = color1.redComponent - color2.redComponent
-    let greenDiff = color1.greenComponent - color2.greenComponent
-    let blueDiff = color1.blueComponent - color2.blueComponent
-
-    return sqrt(redDiff * redDiff + greenDiff * greenDiff + blueDiff * blueDiff)
-}
-
-func findClosestColorValue(colormap: ColorMap, target: NSColor?) -> Double? {
-//    guard colors.count == values.count, !colors.isEmpty, ((target?.redComponent) != nil) else {
-//        print("Error: Colors and values must have the same non-zero length.")
-//        return nil
+//    let values: [Double] = (y1 ... y0).map {
+//        return twoValues[1] + k * Double($0 - y1)
 //    }
-//    var closestColor: NSColor
-    var closestValue = nil as Double?
-    var smallestDistance = Double.infinity
+//    let colors: [Point3D] = (y1 ... y0).map {
+//        let color = bitmap.colorAt(x: x, y: $0)!
+////        print("Red: \(color.redComponent), Green: \(color.greenComponent), Blue: \(color.blueComponent)")
+//        return Color2Point3D(color)
+//    }
+    
+    let colorValuePairs: [Point3D] = (y1 ... y0).map {
+        let color = bitmap.colorAt(x: x, y: $0)!
+        let value = twoValues[1] + k * Double($0 - y1)
+        return Color2Point3D(color, value)
+    }
+    print("\(colorValuePairs.count) data points are used.")
+    
+    return ColorMap(colorValuePairs: colorValuePairs)
+}
 
-    for (index, color) in colormap.colors.enumerated() {
-        let distance = colorDistance(color, target!)
-        if distance < smallestDistance {
-            smallestDistance = distance
-//            closestColor = color
-            closestValue = colormap.values[index]
-        }
+func queryNearestNeighbors(
+    dataPoints: [Point3D],
+    queryPoints: [Point3D]
+) -> [Double] {
+    let kdTree = KDTree(values: dataPoints)
+    return queryPoints.map { query in
+        return kdTree.nearest(to: query)?.value ?? Double.nan
+    }
+}
+
+func reshapeToMatrix(array: [Double], rows: Int, columns: Int) -> [[Double]] {
+    guard array.count == rows * columns else {
+        fatalError("The size of the array (\(array.count)) does not match the specified dimensions (\(rows) x \(columns))")
     }
     
-    return closestValue
+    var matrix: [[Double]] = []
+    for i in 0..<rows {
+        let start = i * columns
+        let end = start + columns
+        matrix.append(Array(array[start..<end]))
+    }
+    return matrix
 }
+
+
+//func colorDistance(_ color1: NSColor, _ color2: NSColor) -> Double {
+//    let redDiff = color1.redComponent - color2.redComponent
+//    let greenDiff = color1.greenComponent - color2.greenComponent
+//    let blueDiff = color1.blueComponent - color2.blueComponent
+//
+//    return sqrt(redDiff * redDiff + greenDiff * greenDiff + blueDiff * blueDiff)
+//}
+
+//func findClosestColorValue(colormap: ColorMap, target: NSColor?) -> Double? {
+//    var closestValue = nil as Double?
+//    var smallestDistance = Double.infinity
+//
+//    for (index, color) in colormap.colors.enumerated() {
+//        let distance = colorDistance(color, target!)
+//        if distance < smallestDistance {
+//            smallestDistance = distance
+////            closestColor = color
+//            closestValue = colormap.values[index]
+//        }
+//    }
+//    
+//    return closestValue
+//}
 
 func interpolateColorValue(bitmap: NSBitmapImageRep, colormap: ColorMap) -> [[Double]] {
     let width = bitmap.pixelsWide
     let height = bitmap.pixelsHigh
-    var values: [[Double]] = Array(repeating: Array(repeating: 0, count: width), count: height)
+    var queryPoints: [[Point3D]] = Array(
+        repeating: Array(repeating: Point3D(x: 0, y: 0, z: 0, value: 0),
+                         count: width),
+        count: height
+    )
+//    var values: [[Double]] = Array(repeating: Array(repeating: 0, count: width), count: height)
     
-    print("==> Subroutine: interpolate colors to values.")
     for y in 0..<height {
         for x in 0..<width {
-            let color = bitmap.colorAt(x: x, y: y)
-            values[y][x] = findClosestColorValue(colormap: colormap, target: color) ?? 0
-        }
-        if (y % max(height / 100, 1) == 0) {
-            print("Progress: \(y) / \(height)...")
+            queryPoints[y][x] = Color2PlainPoint3D(bitmap.colorAt(x: x, y: y)!)
         }
     }
     
+    let flattenedQueryPoints = queryPoints.flatMap { $0 }
+    
+    print("==> Subroutine: interpolate colors to values.")
+    
+    let flattenedValues = queryNearestNeighbors(dataPoints: colormap.colorValuePairs, queryPoints: flattenedQueryPoints)
+    let values = reshapeToMatrix(array: flattenedValues, rows: height, columns: width)
     return values
 }
 
