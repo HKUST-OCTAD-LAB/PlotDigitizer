@@ -20,10 +20,10 @@ func digitizeImage(image: NSImage?, corners: [CGPoint], colorbar: [CGPoint], val
     let croppedBitmap = cropImage(bitmap: bitmap, corners: corners)
     let values = interpolateColorValue(bitmap: croppedBitmap, colormap: colormap)
     print("Values have been extracted.")
-    let fileURL = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("heatmap.csv")
-    print("Try to save to \(fileURL.path).")
+    let homeDirectory = FileManager.default.homeDirectoryForCurrentUser
+    let filename = "heatmap.csv"
     do {
-        try saveAsCSV(data: values, to: fileURL.path)
+        try saveAsCSV(data: values, to: filename)
     } catch {
         print("Error saving CSV file!")
     }
@@ -189,8 +189,39 @@ func saveAsCSV(data: [[Double]], to filePath: String) throws {
     let csvString = data.map { row in
         row.map { String($0) }.joined(separator: ",") // Join elements in a row with commas
     }.joined(separator: "\n") // Join rows with newlines
-
-    // Step 2: Write the CSV string to the specified file path
-    try csvString.write(toFile: filePath, atomically: true, encoding: .utf8)
+    
+    let savePanel = NSSavePanel()
+    savePanel.title = "Save Heatmap Data"
+    savePanel.message = "Choose a location to save your heatmap data."
+    savePanel.nameFieldStringValue = filePath
+    
+    // Run the save panel
+    savePanel.begin { response in
+        if response == .OK, let fileURL = savePanel.url {
+            print("Try to save to: \(fileURL.absoluteString).")
+            // Write the file to the selected location
+            do {
+                try csvString.write(to: fileURL, atomically: true, encoding: .utf8)
+                showMessageDialog(title: "File Saved", message: "The file was saved successfully at: \(fileURL.path)")
+            } catch {
+                showMessageDialog(title: "Save Failed", message: "Failed to save the file. Error: \(error.localizedDescription)")
+            }
+        } else {
+            showMessageDialog(title: "Save Cancelled", message: "The file was not saved.")
+        }
+    }
 }
 
+func showMessageDialog(title: String, message: String) {
+    // Create an alert
+    let alert = NSAlert()
+    alert.messageText = title
+    alert.informativeText = message
+    alert.alertStyle = .informational
+    alert.addButton(withTitle: "OK")
+    
+    // Display the alert on the main thread
+    DispatchQueue.main.async {
+        alert.runModal()
+    }
+}

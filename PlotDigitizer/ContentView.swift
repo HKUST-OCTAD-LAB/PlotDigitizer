@@ -54,12 +54,6 @@ struct ContentView: View {
         }, message: {
             Text("Please provide your input below.")
         })
-        .alert("Complete", isPresented: $showOutputDialog, actions: {
-            Button("OK") {}
-            Button("Cancel", role: .cancel) {}
-        }, message: {
-            Text("Output is saved to home folder.")
-        })
     }
 }
 
